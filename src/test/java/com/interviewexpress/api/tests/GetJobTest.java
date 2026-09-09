@@ -69,7 +69,133 @@ public class GetJobTest extends BaseTest {
             Assert.assertTrue(createdAt.matches(iso8601Regex), "createdAt timestamp is not valid ISO 8601 format");
         }
 
+
+    }
+
+    // =========================================================================
+    // SECTION 2: Query Parameters, Pagination & Filtering
+    // =========================================================================
+
+    /**
+     * 1. Valid Pagination Execution
+     */
+    @Test(description = "Test 2.1: Valid Pagination Execution")
+    public void testValidPaginationExecution() {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("page", 1);
+        queryParams.put("pageSize", 5);
+
+        Response response = jobsClient.getAllJobs(queryParams);
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
+        Assert.assertEquals(response.jsonPath().getInt("page"), 1, "Page metadata should be 1");
+        Assert.assertEquals(response.jsonPath().getInt("pageSize"), 5, "PageSize metadata should be 5");
+
+        List<Object> items = response.jsonPath().getList("items");
+        Assert.assertNotNull(items, "Items list should not be null");
+        Assert.assertTrue(items.size() <= 5, "Items size should not exceed requested pageSize of 5");
+    }
+
+    /**
+     * 2. Default Pagination Fallback
+     */
+    @Test(description = "Test 2.1: Default Pagination Fallback")
+    public void testDefaultPaginationFallback() {
+        Response response = jobsClient.getAllJobs(new HashMap<>());
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
+        Assert.assertEquals(response.jsonPath().getInt("page"), 1, "Default page should be 1");
+        Assert.assertEquals(response.jsonPath().getInt("pageSize"), 10, "Default pageSize should be 10");
+
+        List<Object> items = response.jsonPath().getList("items");
+        Assert.assertNotNull(items, "Items array should not be null");
+        Assert.assertTrue(items.size() <= 10, "Items size should adhere to server default limit of 10");
+    }
+
+    /**
+     * 3. Single Filter Matching (status)
+     */
+    @Test(description = "Test 2.2: Single Filter Matching (status)")
+    public void testSingleFilterMatchingStatus() {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("status", "ACTIVE");
+
+        Response response = jobsClient.getAllJobs(queryParams);
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
+
+        List<String> statuses = response.jsonPath().getList("items.status");
+        Assert.assertNotNull(statuses, "Statuses list should not be null");
+
+        for (String status : statuses) {
+            Assert.assertEquals(status, "ACTIVE", "Every item's status must match query param 'ACTIVE'");
+        }
+    }
+
+    /**
+     * 4. Single Filter Matching (department / title)
+     */
+    @Test(description = "Test 2.3: Single Filter Matching (department / title)")
+    public void testSingleFilterMatchingDepartment() {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("department", "Engineering");
+
+        Response response = jobsClient.getAllJobs(queryParams);
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
+
+        List<String> departments = response.jsonPath().getList("items.department");
+        Assert.assertNotNull(departments, "Departments list should not be null");
+
+        for (String dept : departments) {
+            Assert.assertEquals(dept, "Engineering", "Every item's department must match query param 'Engineering'");
+        }
+    }
+
+    /**
+     * 5. Combined Filtering & Pagination
+     */
+    @Test(description = "Test 2.4: Combined Filtering & Pagination")
+    public void testCombinedFilteringAndPagination() {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("page", 1);
+        queryParams.put("pageSize", 2);
+        queryParams.put("status", "ACTIVE");
+        queryParams.put("department", "Engineering");
+
+        Response response = jobsClient.getAllJobs(queryParams);
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
+        Assert.assertEquals(response.jsonPath().getInt("page"), 1, "Page metadata should be 1");
+        Assert.assertEquals(response.jsonPath().getInt("pageSize"), 2, "PageSize metadata should be 2");
+
+        List<String> statuses = response.jsonPath().getList("items.status");
+        List<String> departments = response.jsonPath().getList("items.department");
+
+        for (int i = 0; i < statuses.size(); i++) {
+            Assert.assertEquals(statuses.get(i), "ACTIVE", "Status must match query param 'ACTIVE'");
+            Assert.assertEquals(departments.get(i), "Engineering", "Department must match query param 'Engineering'");
+        }
+    }
+
+    /**
+     * 6. Non-Matching Filter Results
+     */
+    @Test(description = "Test 2.5: Non-Matching Filter Results")
+    public void testNonMatchingFilterResults() {
+        Map<String, Object> queryParams = new HashMap<>();
+        queryParams.put("title", "NON_EXISTENT_JOB_TITLE_XYZ");
+
+        Response response = jobsClient.getAllJobs(queryParams);
+
+        Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
+        Assert.assertEquals(response.jsonPath().getInt("total"), 0, "Total count should be 0");
+
+        List<Object> items = response.jsonPath().getList("items");
+        Assert.assertNotNull(items, "Items array should not be null");
+        Assert.assertTrue(items.isEmpty(), "Items list should be empty []");
     }
 }
+
 
 
