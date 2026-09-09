@@ -49,7 +49,7 @@ public class GetJobTest extends BaseTest {
         Assert.assertNotNull(json.get("total"), "Root key 'total' missing");
         Assert.assertNotNull(json.get("page"), "Root key 'page' missing");
         Assert.assertNotNull(json.get("pageSize"), "Root key 'pageSize' missing");
-        Assert.assertNotNull(json.get("totalPage"), "Root key 'totalPage' missing");
+        Assert.assertNotNull(json.get("totalPages"), "Root key 'totalPages' missing");
         Assert.assertNotNull(json.get("items"), "Root key 'items' missing");
 
         // 4. Non-Empty Items Array
