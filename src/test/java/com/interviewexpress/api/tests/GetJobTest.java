@@ -99,7 +99,7 @@ public class GetJobTest extends BaseTest {
     /**
      * 2. Default Pagination Fallback
      */
-    @Test(description = "Test 2.1: Default Pagination Fallback")
+    @Test(description = "Test 2.2: Default Pagination Fallback")
     public void testDefaultPaginationFallback() {
         Response response = jobsClient.getAllJobs(new HashMap<>());
 
@@ -115,12 +115,12 @@ public class GetJobTest extends BaseTest {
     /**
      * 3. Single Filter Matching (status)
      */
-    @Test(description = "Test 2.2: Single Filter Matching (status)")
+    @Test(description = "Test 2.3: Single Filter Matching (status)")
     public void testSingleFilterMatchingStatus() {
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("status", "ACTIVE");
+        Map<String, Object> parms = new HashMap<>();
+        parms.put("status", "active");
 
-        Response response = jobsClient.getAllJobs(queryParams);
+        Response response = jobsClient.getAllJobs(parms);
 
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
 
@@ -128,65 +128,80 @@ public class GetJobTest extends BaseTest {
         Assert.assertNotNull(statuses, "Statuses list should not be null");
 
         for (String status : statuses) {
-            Assert.assertEquals(status, "ACTIVE", "Every item's status must match query param 'ACTIVE'");
+            Assert.assertEquals(status, "active", "Every item's status must match query param 'ACTIVE'");
         }
     }
 
     /**
      * 4. Single Filter Matching (department / title)
      */
-    @Test(description = "Test 2.3: Single Filter Matching (department / title)")
-    public void testSingleFilterMatchingDepartment() {
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("department", "Engineering");
+    @Test(description = "Test 2.4: Single Filter Matching (search)")
+    public void testSingleFilterMatchingSearch() {
+        Map<String, Object> parms = new HashMap<>();
+        parms.put("search", "Engineer");
 
-        Response response = jobsClient.getAllJobs(queryParams);
+        Response response = jobsClient.getAllJobs(parms);
 
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
 
-        List<String> departments = response.jsonPath().getList("items.department");
-        Assert.assertNotNull(departments, "Departments list should not be null");
+        List<String> titles = response.jsonPath().getList("items.title");
+        Assert.assertNotNull(titles, "Titles list should not be null");
 
-        for (String dept : departments) {
-            Assert.assertEquals(dept, "Engineering", "Every item's department must match query param 'Engineering'");
+        for (String title : titles) {
+            Assert.assertTrue(title.toLowerCase().contains("engineer"),
+                    "Every job title should contain the search term 'Engineer'");
         }
     }
+
 
     /**
      * 5. Combined Filtering & Pagination
      */
-    @Test(description = "Test 2.4: Combined Filtering & Pagination")
+    @Test(description = "Test 2.5: Combined Filtering & Pagination")
     public void testCombinedFilteringAndPagination() {
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("page", 1);
-        queryParams.put("pageSize", 2);
-        queryParams.put("status", "ACTIVE");
-        queryParams.put("department", "Engineering");
+        Map<String, Object> parms = new HashMap<>();
+        parms.put("page", 1);
+        parms.put("pageSize", 2);
+        parms.put("status", "active");
+        parms.put("search", "Engineer");
 
-        Response response = jobsClient.getAllJobs(queryParams);
+        Response response = jobsClient.getAllJobs(parms);
 
+        // Validate Status Code & Metadata
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
         Assert.assertEquals(response.jsonPath().getInt("page"), 1, "Page metadata should be 1");
         Assert.assertEquals(response.jsonPath().getInt("pageSize"), 2, "PageSize metadata should be 2");
 
+        // Extract item details using valid JSONPaths
         List<String> statuses = response.jsonPath().getList("items.status");
-        List<String> departments = response.jsonPath().getList("items.department");
+        List<String> titles = response.jsonPath().getList("items.title");
+        List<String> descriptions = response.jsonPath().getList("items.description");
 
+        // Ensure item count respects pageSize limit
+        Assert.assertTrue(statuses.size() <= 2, "Items list length should not exceed pageSize");
+
+        // Validate filtered attributes
         for (int i = 0; i < statuses.size(); i++) {
-            Assert.assertEquals(statuses.get(i), "ACTIVE", "Status must match query param 'ACTIVE'");
-            Assert.assertEquals(departments.get(i), "Engineering", "Department must match query param 'Engineering'");
+            Assert.assertEquals(statuses.get(i), "active", "Status must match query param 'active'");
+
+            String title = titles.get(i) != null ? titles.get(i).toLowerCase() : "";
+            String description = descriptions.get(i) != null ? descriptions.get(i).toLowerCase() : "";
+
+            Assert.assertTrue(
+                    title.contains("engineer") || description.contains("engineer"),
+                    "Either title or description should match the search keyword 'Engineer'"
+            );
         }
     }
-
     /**
      * 6. Non-Matching Filter Results
      */
-    @Test(description = "Test 2.5: Non-Matching Filter Results")
+    @Test(description = "Test 2.6: Non-Matching Filter Results")
     public void testNonMatchingFilterResults() {
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("title", "NON_EXISTENT_JOB_TITLE_XYZ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("search", "NON_EXISTENT_JOB_TITLE_XYZ");
 
-        Response response = jobsClient.getAllJobs(queryParams);
+        Response response = jobsClient.getAllJobs(params);
 
         Assert.assertEquals(response.getStatusCode(), 200, "Expected status code 200 OK");
         Assert.assertEquals(response.jsonPath().getInt("total"), 0, "Total count should be 0");
