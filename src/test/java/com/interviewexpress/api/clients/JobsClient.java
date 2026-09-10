@@ -60,10 +60,10 @@ public class JobsClient {
                 .when()
                 .post(JOBS_ENDPOINT);
     }
-//==================================Below Get api method client operations==========================
-    //===============================                                 =====================================
-   public Response getAllJObs()
-   {
+
+    //==================================Below Get api method client operations==========================
+    //===============================   Master test plan section 1            =====================================
+    public Response getAllJObs() {
       /*
       Option A: Storing in a variable first (What you learned EARLIER)
 
@@ -83,13 +83,12 @@ Why Option B works without typing Response response =:
 
 If Option A feels easier and clearer to read right now, use Option A! Both are completely valid in real-world frameworks.
  */
-       //Option B: Returning directly (Shorter / Cleaner)
-       //Sends the request and immediately returns the result in one line
-       return given().spec(requestSpec).when().get(JOBS_ENDPOINT);
-   }
+        //Option B: Returning directly (Shorter / Cleaner)
+        //Sends the request and immediately returns the result in one line
+        return given().spec(requestSpec).when().get(JOBS_ENDPOINT);
+    }
 
-   public Response getAllJobs(Map<String, Object> parms)
-   {
+    public Response getAllJobs(Map<String, Object> parms) {
       /*
       here do not need add the hard cording data
        parms.put("page", 1);
@@ -106,19 +105,18 @@ The job of the Client is only to pass whatever map the Test class gives it!
 
        */
 
-       return given()
-               .spec(requestSpec)
-               .queryParams(parms)
-               .when()
-               .get(JOBS_ENDPOINT);
-   }
+        return given()
+                .spec(requestSpec)
+                .queryParams(parms)
+                .when()
+                .get(JOBS_ENDPOINT);
+    }
 
-   public Response getJobById(String jobId)
-   {
-       return given()
-               .spec(requestSpec)
-               .pathParam("id",jobId)
-               .when().get(JOBS_ENDPOINT + "{id}");
+    public Response getJobById(String jobId) {
+        return given()
+                .spec(requestSpec)
+                .pathParam("id", jobId)
+                .when().get(JOBS_ENDPOINT + "{id}");
 
        /*
        How RestAssured executes this behind the scenes:
@@ -128,9 +126,9 @@ The job of the Client is only to pass whatever map the Test class gives it!
 
 get(JOBS_ENDPOINT + "/{id}") translates to GET /v1/jobs/123.
         */
-   }
+    }
 
-   public Response getAllJobsWithoutAuth()
+    public Response getAllJobsWithoutAuth()
            /*
            Do not use .spec(requestSpec) here, because requestSpec already contains your valid authentication tokens/headers.
 Start with given() directly.
@@ -139,12 +137,11 @@ Specify Base Settings Manually:
 Call .baseUri("[https://client-api.interview.express](https://client-api.interview.express)")
 (or use your base URI constant) directly inside the chain to specify where to send the request
  without attaching any auth headers.
-            */
-   {
-       return given().baseUri("https://client-api.interview.express")
-               .when()
-               .get(JOBS_ENDPOINT);
-   }
+            */ {
+        return given().baseUri("https://client-api.interview.express")
+                .when()
+                .get(JOBS_ENDPOINT);
+    }
 /*
 Summary of JobsClient.java
 You have now successfully built all the foundational driver methods required by our Master Test Plan:
@@ -157,5 +154,10 @@ getJobById(String jobId) — Single resource lookup by ID (Path params)
 
 getAllJobsWithoutAuth() — Unauthenticated call (Security/401 testing)
  */
+//===========================client for error code###########################
 
+    public Response getErrorJobResponse() {
+        return given().baseUri("https://client-api.interview.express")
+                .when().get(JOBS_ENDPOINT);
+    }
 }

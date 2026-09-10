@@ -2,6 +2,7 @@ package com.interviewexpress.api.tests;
 
 import com.interviewexpress.api.clients.JobsClient;
 import com.interviewexpress.api.config.BaseTest;
+import com.interviewexpress.api.pojos.ErrorResponse;
 import com.interviewexpress.api.pojos.JobListResponse;
 import com.interviewexpress.api.pojos.JobResponse;
 import io.restassured.path.json.JsonPath;
@@ -193,6 +194,7 @@ public class GetJobTest extends BaseTest {
             );
         }
     }
+
     /**
      * 6. Non-Matching Filter Results
      */
@@ -210,7 +212,29 @@ public class GetJobTest extends BaseTest {
         Assert.assertNotNull(items, "Items array should not be null");
         Assert.assertTrue(items.isEmpty(), "Items list should be empty []");
     }
-}
 
 
+// =========================================================================
+// SECTION 3: Error code
+// =========================================================================
 
+    @Test(description = "error code")
+    public void getErrorCode() {
+        Response response = jobsClient.getErrorJobResponse();
+
+        Assert.assertEquals(response.getStatusCode(), 401, "Expected 401 for missing/invalid auth");
+
+        ErrorResponse errorResponse = response.as(ErrorResponse.class);
+
+        Assert.assertNotNull(errorResponse.getError(), "Error field should not be null");
+        Assert.assertNotNull(errorResponse.getMessage(), "Message field should not be null");
+        Assert.assertNotNull(errorResponse.getTimestamp(), "Timestamp field should not be null");
+        Assert.assertNotNull(errorResponse.getTraceId(), "TraceId field should not be null");
+
+        System.out.println("Error: " + errorResponse.getError());
+        System.out.println("Message: " + errorResponse.getMessage());
+
+        System.out.println("======Full error response body=============");
+        response.prettyPrint();
+    }
+    }
