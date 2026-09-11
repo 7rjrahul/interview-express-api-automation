@@ -13,6 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.asserts.Assertion;
 
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,11 +219,11 @@ public class GetJobTest extends BaseTest {
 // SECTION 3: Error code
 // =========================================================================
 
-    @Test(description = "error code")
-    public void getErrorCode() {
-        Response response = jobsClient.getErrorJobResponse();
+    @Test(description = "401: Invalid API key")
+    public void testInvalidApiKey() {
+        Response response = jobsClient.getAllJobsWithCustomAuth("aih_totally_invalid_key_123");
 
-        Assert.assertEquals(response.getStatusCode(), 401, "Expected 401 for missing/invalid auth");
+        Assert.assertEquals(response.getStatusCode(), 401, "Expected 401 for invalid auth");
 
         ErrorResponse errorResponse = response.as(ErrorResponse.class);
 
@@ -237,4 +238,35 @@ public class GetJobTest extends BaseTest {
         System.out.println("======Full error response body=============");
         response.prettyPrint();
     }
+
+    @Test(description = "410:Empty api key")
+    public void testMissingApiKey()
+    {
+        Response response = jobsClient.getAllJobsWithCustomAuth("");
+        Assert.assertEquals(response.getStatusCode(),401,"Expected 401 for missing Api key");
+
+        ErrorResponse errorResponse = response.as(ErrorResponse.class);
+        System.out.println("Error :" + errorResponse.getError());
+        System.out.println("Message :"+ errorResponse.getMessage());
+    }
+@Test(description = "401: white space")
+    public void testWithSpaceApiKey()
+{
+    Response response = jobsClient.getAllJobsWithCustomAuth("  ");
+    Assert.assertEquals(response.getStatusCode(), 401, "Expected 401 for white space");
+
+
+    ErrorResponse errorResponse = response.as(ErrorResponse.class);
+    System.out.println("Error :" + errorResponse.getError());
+    System.out.println("Message :"+ errorResponse.getMessage());
+
+}
+
+@Test(description = "404: Bad request")
+    public void testWithBadRequest()
+{
+    Response response = jobsClient.getJobById("505");
+    Assert.assertEquals(response.getStatusCode(),404, "Expected 404 by passing wrong jobId");
+}
+
     }

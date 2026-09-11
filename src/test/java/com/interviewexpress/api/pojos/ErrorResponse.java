@@ -12,7 +12,8 @@ public class ErrorResponse {
     private String traceId;
 
     // 1. Mandatory No-Arg Constructor (for Jackson Deserialization)
-    public ErrorResponse() {
+    public ErrorResponse()
+    {
     }
 
     // 2. Parameterized Constructor

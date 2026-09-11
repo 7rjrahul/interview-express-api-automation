@@ -10,6 +10,7 @@ import io.restassured.specification.RequestSpecification;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 
 public class JobsClient {
 
@@ -154,10 +155,15 @@ getJobById(String jobId) — Single resource lookup by ID (Path params)
 
 getAllJobsWithoutAuth() — Unauthenticated call (Security/401 testing)
  */
-//===========================client for error code###########################
+//===========================client for error code=======###########################
 
-    public Response getErrorJobResponse() {
-        return given().baseUri("https://client-api.interview.express")
-                .when().get(JOBS_ENDPOINT);
+    public Response getAllJobsWithCustomAuth(String apiKeyValue) {
+        return given()
+                .baseUri("https://client-api.interview.express")
+                .header("X-Api-Key", apiKeyValue)
+                .when()
+                .get(JOBS_ENDPOINT);
     }
+
+
 }
