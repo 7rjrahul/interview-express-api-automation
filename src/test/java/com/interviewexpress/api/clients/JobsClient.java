@@ -117,7 +117,8 @@ The job of the Client is only to pass whatever map the Test class gives it!
         return given()
                 .spec(requestSpec)
                 .pathParam("id", jobId)
-                .when().get(JOBS_ENDPOINT + "{id}");
+                .when().
+                get(JOBS_ENDPOINT + "/{id}");
 
        /*
        How RestAssured executes this behind the scenes:

@@ -2,9 +2,7 @@ package com.interviewexpress.api.tests;
 
 import com.interviewexpress.api.clients.JobsClient;
 import com.interviewexpress.api.config.BaseTest;
-import com.interviewexpress.api.pojos.ErrorResponse;
-import com.interviewexpress.api.pojos.JobListResponse;
-import com.interviewexpress.api.pojos.JobResponse;
+import com.interviewexpress.api.pojos.*;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -239,7 +237,7 @@ public class GetJobTest extends BaseTest {
         response.prettyPrint();
     }
 
-    @Test(description = "410:Empty api key")
+    @Test(description = "401:Empty api key")
     public void testMissingApiKey()
     {
         Response response = jobsClient.getAllJobsWithCustomAuth("");
@@ -265,8 +263,86 @@ public class GetJobTest extends BaseTest {
 @Test(description = "404: Bad request")
     public void testWithBadRequest()
 {
-    Response response = jobsClient.getJobById("505");
+    // jobId is expected to be in UUID format.
+    // A valid but non-existent UUID is used here so that the API
+    // passes UUID validation and returns 404 (Job Not Found).
+    Response response = jobsClient.getJobById("550e8400-e29b-41d4-a716-446655440000\n");
+
+    System.out.println(response.asPrettyString());
+
     Assert.assertEquals(response.getStatusCode(),404, "Expected 404 by passing wrong jobId");
+
+    ErrorResponse error = response.as(ErrorResponse.class);
+    System.out.println("Error: " + error.getError());
+    System.out.println("Message :" + error.getMessage());
+
 }
+
+@Test(description = "422 : test Validation error by wrong job id format")
+    public void testwithValidation()
+{
+    Response response = jobsClient.getJobById("399");
+    Assert.assertEquals(response.getStatusCode(), 422);
+
+
+
+}
+    @Test(description = "422: Invalid page query parameter type")
+    public void testWithInvalidPageQueryParam()
+{
+    Map<String, Object> parms = new HashMap<>();
+    parms.put("page", "ssss");
+
+    Response response= jobsClient.getAllJobs(parms);
+    Assert.assertEquals(response.getStatusCode(), 422);
+
+    HTTPValidationError errorResponse = response.as(HTTPValidationError.class);
+    System.out.println("details: "+ errorResponse.getDetail());
+
+    ValidationErrorDetail detail = errorResponse.getDetail().get(0);
+    System.out.println("Error Type: "+detail.getType());
+    System.out.println("Message: " + detail.getMsg());
+    System.out.println("Input :" + detail.getInput());
+    System.out.println("ctx  :" + detail.getCtx());
+
+}
+
+    @Test(description = "422: pageSize exceeds maximum allowed value")
+    public void testWithInvalidPageSizeQueryParam()
+    {
+        Map<String, Object> parms = new HashMap<>();
+        parms.put("pageSize", "101");
+
+        Response response= jobsClient.getAllJobs(parms);
+        Assert.assertEquals(response.getStatusCode(), 422);
+        HTTPValidationError errorResponse = response.as(HTTPValidationError.class);
+        System.out.println("details: "+ errorResponse.getDetail());
+
+        ValidationErrorDetail detail = errorResponse.getDetail().get(0);
+        System.out.println("Error Type: "+detail.getType());
+        System.out.println("Message: " + detail.getMsg());
+        System.out.println("Input :" + detail.getInput());
+        System.out.println("ctx  :" + detail.getCtx());
+
+    }
+    @Test(description = "422: pageSize is below minimum allowed value")
+    public void testWithMinimumInvalidPageSizeQueryParam()
+    {
+        Map<String, Object> parms = new HashMap<>();
+        parms.put("pageSize", "0");
+
+        Response response= jobsClient.getAllJobs(parms);
+        Assert.assertEquals(response.getStatusCode(), 422);
+        HTTPValidationError errorResponse = response.as(HTTPValidationError.class);
+        System.out.println("details: "+ errorResponse.getDetail());
+
+        ValidationErrorDetail detail = errorResponse.getDetail().get(0);
+        System.out.println("Error Type: "+detail.getType());
+        System.out.println("Message: " + detail.getMsg());
+        System.out.println("Input :" + detail.getInput());
+        System.out.println("ctx  :" + detail.getCtx());
+
+    }
+
 
     }
