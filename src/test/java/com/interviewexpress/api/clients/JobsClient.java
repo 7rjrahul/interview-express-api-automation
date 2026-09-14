@@ -116,7 +116,7 @@ The job of the Client is only to pass whatever map the Test class gives it!
     public Response getJobById(String jobId) {
         return given()
                 .spec(requestSpec)
-                .pathParam("jobId", jobId)
+                .pathParam("id", jobId)
                 .when().
                 get(JOBS_ENDPOINT + "/{id}");
 
