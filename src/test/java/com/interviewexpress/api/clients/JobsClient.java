@@ -116,9 +116,9 @@ The job of the Client is only to pass whatever map the Test class gives it!
     public Response getJobById(String jobId) {
         return given()
                 .spec(requestSpec)
-                .pathParam("id", jobId)
+                .pathParam("jobId", jobId)
                 .when().
-                get(JOBS_ENDPOINT + "/{id}");
+                post(JOBS_ENDPOINT + "/{id}");
 
        /*
        How RestAssured executes this behind the scenes:
@@ -166,5 +166,15 @@ getAllJobsWithoutAuth() — Unauthenticated call (Security/401 testing)
                 .get(JOBS_ENDPOINT);
     }
 
+//=================POST generate-screening =============
 
+    public Response generateScreening(String jobId) {
+        return given()
+                .spec(requestSpec)
+                .contentType("application/json")
+                .pathParam("jobId", jobId)
+                .when()
+                .post(JOBS_ENDPOINT + "/{jobId}/generate-screening");
+    }
 }
+
