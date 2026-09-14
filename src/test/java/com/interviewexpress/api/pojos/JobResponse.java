@@ -191,7 +191,8 @@ public class JobResponse {
         this.updatedAt = updatedAt;
     }
 
-    public Map<String, Object> getScreeningCriteria() {
+    public Map<String, Object> getScreeningCriteria()
+    {
         return screeningCriteria;
     }
 
