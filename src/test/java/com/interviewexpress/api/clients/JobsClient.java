@@ -118,7 +118,7 @@ The job of the Client is only to pass whatever map the Test class gives it!
                 .spec(requestSpec)
                 .pathParam("jobId", jobId)
                 .when().
-                post(JOBS_ENDPOINT + "/{id}");
+                get(JOBS_ENDPOINT + "/{id}");
 
        /*
        How RestAssured executes this behind the scenes:
@@ -172,9 +172,9 @@ getAllJobsWithoutAuth() — Unauthenticated call (Security/401 testing)
         return given()
                 .spec(requestSpec)
                 .contentType("application/json")
-                .pathParam("jobId", jobId)
+                .pathParam("id", jobId)
                 .when()
-                .post(JOBS_ENDPOINT + "/{jobId}/generate-screening");
+                .post(JOBS_ENDPOINT + "/{id}/generate-screening");
     }
 }
 

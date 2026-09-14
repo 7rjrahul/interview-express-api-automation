@@ -19,7 +19,6 @@ public class BaseTest
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri("https://client-api.interview.express")
                 .addHeader("X-Api-Key", apiKey)
-                .log(LogDetail.ALL) // Logs complete request details on execution for clear debugging
                 .build();
     }
 }
