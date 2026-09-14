@@ -2,6 +2,7 @@ package com.interviewexpress.api.tests;
 
 import com.interviewexpress.api.clients.JobsClient;
 import com.interviewexpress.api.config.BaseTest;
+import com.interviewexpress.api.pojos.JobListResponse;
 import com.interviewexpress.api.pojos.JobResponse;
 import com.interviewexpress.api.utils.JobUtils;
 import io.restassured.response.Response;
@@ -47,6 +48,10 @@ public class GenerateAIscreeningTest extends BaseTest
 
         // Print the complete response JSON for debugging/inspection
         System.out.println(response.asPrettyString());
+
+        JobResponse responseAiScreening = response.as(JobResponse.class);
+
+
 
 
  }
