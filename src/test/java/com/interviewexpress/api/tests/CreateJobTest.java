@@ -77,7 +77,8 @@ public class CreateJobTest extends BaseTest {
 /*
 =============------------------------------
 Initially we have created like this our Test class,
-In the this  version, you created the actual data right inside the test method (setting up the titles, questions, numbers, and file paths line by line).
+In this version, you created the actual data right inside the test method
+(setting up the titles, questions, numbers, and file paths line by line).
 
 When you switched to TestDataFactory, you didn't change what data was being sent—you just moved
 where that data was declared into a separate helper class (TestDataFactory), and then called it using one simple line:

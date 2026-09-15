@@ -168,13 +168,30 @@ getAllJobsWithoutAuth() — Unauthenticated call (Security/401 testing)
 
 //=================POST generate-screening =============
 
-    public Response generateScreening(String jobId) {
+    public Response generateScreening(String jobId, RequestSpecification customSpec)
+    {
         return given()
-                .spec(requestSpec)
+                .spec(customSpec)
                 .contentType("application/json")
                 .pathParam("id", jobId)
                 .when()
                 .post(JOBS_ENDPOINT + "/{id}/generate-screening");
     }
 }
+    /**
+     * Overloaded generateScreening method accepting a custom RequestSpecification
+     * Used for 401 (no auth), 403, missing headers, or custom spec scenarios.
+     */
+   /* public Response generateScreening(String jobId, RequestSpecification customSpec) {
+        return given()
+                .spec(customSpec)
+                .pathParam("id", jobId)
+                .when()
+                .post(JOBS_ENDPOINT + "/{id}/generate-screening");
+    }
 
+
+}
+
+
+    */
