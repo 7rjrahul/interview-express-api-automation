@@ -177,6 +177,8 @@ getAllJobsWithoutAuth() — Unauthenticated call (Security/401 testing)
                 .when()
                 .post(JOBS_ENDPOINT + "/{id}/generate-screening");
     }
+
+
 }
     /**
      * Overloaded generateScreening method accepting a custom RequestSpecification

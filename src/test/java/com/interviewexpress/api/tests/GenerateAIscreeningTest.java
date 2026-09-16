@@ -2,9 +2,7 @@ package com.interviewexpress.api.tests;
 
 import com.interviewexpress.api.clients.JobsClient;
 import com.interviewexpress.api.config.BaseTest;
-import com.interviewexpress.api.pojos.CreateJobRequest;
-import com.interviewexpress.api.pojos.ErrorResponse;
-import com.interviewexpress.api.pojos.JobResponse;
+import com.interviewexpress.api.pojos.*;
 import com.interviewexpress.api.utils.JobUtils;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
@@ -13,6 +11,7 @@ import io.restassured.specification.RequestSpecification;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
 
 
 public class GenerateAIscreeningTest extends BaseTest {
@@ -131,25 +130,58 @@ public class GenerateAIscreeningTest extends BaseTest {
         Assert.assertNotNull(error.getMessage(), "Message field should not be null");
         Assert.assertNotNull(error.getTimestamp(), "Timestamp field should not be null");
     }
+
+    @Test(description = "Verify 404 Not Found when Job ID does not exist")
+    public void testGenerateScreening_JobNotFound_Returns404() {
+        String nonExistentJobId = "00000000-0000-0000-0000-000000000000";
+
+        Response response = jobsClient.generateScreening(nonExistentJobId, requestSpec);
+
+        Assert.assertEquals(response.getStatusCode(), 404, "Expected status code 404");
+        Assert.assertEquals(response.contentType(), "application/json");
+        Assert.assertNotNull(response.getHeader("x-trace-id"), "x-trace-id header should be present");
+
+        ErrorResponse error = response.as(ErrorResponse.class);
+        Assert.assertEquals(error.getStatusCode().intValue(), 404);
+        Assert.assertNotNull(error.getError());
+        Assert.assertNotNull(error.getMessage());
+        Assert.assertNotNull(error.getTimestamp());
+    }
+
+    @Test(description = "Verify 422 Unprocessable Entity when Job ID is not a valid UUID format")
+    public void testGenerateScreening_InvalidJobIdFormat_Returns422() {
+        // 1. Arrange: Pass an invalid string string that breaks UUID formatting
+        String malformedJobId = "invalid-job-id-123";
+
+        // 2. Act: Call endpoint with invalid path parameter format
+        Response response = jobsClient.generateScreening(malformedJobId, requestSpec);
+
+        // 3. Assert status code & headers
+        Assert.assertEquals(response.getStatusCode(), 422, "Expected 422 Unprocessable Entity for malformed UUID");
+        Assert.assertEquals(response.contentType(), "application/json");
+
+        // 4. Deserialize to HTTPValidationError POJO
+        HTTPValidationError validationError = response.as(HTTPValidationError.class);
+        Assert.assertNotNull(validationError.getDetail(), "Detail list should not be null");
+        Assert.assertFalse(validationError.getDetail().isEmpty(), "Detail list should not be empty");
+
+        // 5. Verify validation details
+        ValidationErrorDetail errorDetail = validationError.getDetail().get(0);
+        Assert.assertNotNull(errorDetail.getMsg(), "Error message should not be null");
+        Assert.assertNotNull(errorDetail.getType(), "Error type should not be null");
+    }
+
+
 }
-/*
- @Test(description = "404: bad request")
- public void testGenerateScreening_MalformedHeader_Returns404() {
-     // Arrange
-     String validJobId = "123e4567-e89b-12d3-a456-426614174000";
-
-     // Act: Send request with malformed header using client
-     Response response = jobsClient.generateScreeningWithHeader(validJobId, "Content-Type", "invalid-content-type");
-
-     // Assert: Verify 400 status code and ErrorDto schema fields
-     Assert.assertEquals(response.getStatusCode(), 404, "Expected 400 for malformed header");
-     Assert.assertNotNull(response.jsonPath().getString("message"));
-     Assert.assertNotNull(response.getHeader("x-trace-id"));
- }
 
 
- }
 
- */
+
+
+
+
+
+
+
 
 
