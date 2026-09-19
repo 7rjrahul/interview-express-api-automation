@@ -266,7 +266,7 @@ public class GetJobTest extends BaseTest {
     // jobId is expected to be in UUID format.
     // A valid but non-existent UUID is used here so that the API
     // passes UUID validation and returns 404 (Job Not Found).
-    Response response = jobsClient.getJobById("550e8400-e29b-41d4-a716-446655440000\n");
+    Response response = jobsClient.getJobById("550e8400-e29b-41d4-a716-446655440000");
 
     System.out.println(response.asPrettyString());
 

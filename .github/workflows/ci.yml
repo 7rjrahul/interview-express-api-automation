@@ -33,4 +33,6 @@ jobs:
           fi
 
       - name: Run tests with Maven
-        run: mvn test
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+        run: mvn test -Dapi.key="$API_KEY"
