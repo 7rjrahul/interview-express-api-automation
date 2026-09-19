@@ -9,6 +9,11 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    env:
+      # Step 5: Inject API_KEY from GitHub Secrets
+      API_KEY: ${{ secrets.API_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

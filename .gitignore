@@ -37,3 +37,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Ignore local secret configs
+src/test/resources/config-local.properties
