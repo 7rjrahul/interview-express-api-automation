@@ -12,7 +12,7 @@ jobs:
 
     # Step 5: Inject API_KEY from GitHub Secrets
     env:
-      API_KEY: ${{ secrets.API_KEY }}
+      API_KEY: ${{ secrets.api.key}}
 
     steps:
       - name: Checkout code
