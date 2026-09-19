@@ -7,11 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-and-test:   # <-- this is the job_id
     runs-on: ubuntu-latest
 
+    # Step 5: Inject API_KEY from GitHub Secrets
     env:
-      # Step 5: Inject API_KEY from GitHub Secrets
       API_KEY: ${{ secrets.API_KEY }}
 
     steps:
@@ -23,6 +23,14 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+
+      - name: Debug API_KEY presence
+        run: |
+          if [ -z "$API_KEY" ]; then
+            echo "API_KEY is NOT set"
+          else
+            echo "API_KEY is set (masked)"
+          fi
 
       - name: Run tests with Maven
         run: mvn test
